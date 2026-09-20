@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WARDOGS — калькулятор дальности</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #efe6c8;
+      --mute: #c4b894;
+      --line: #5a5340;
+      --amber: #d4a017;
+      --good: #8fb56a;
+      --bad: #c56a48;
+      --panel: rgba(18, 17, 12, 0.88);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      color: var(--ink);
+      font: 15px/1.35 "Barlow Condensed", "Segoe UI", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        linear-gradient(180deg, rgba(12, 14, 9, 0.55), rgba(12, 14, 9, 0.82)),
+        url("assets/map-bg.png") center / cover no-repeat fixed,
+        #1a1c14;
+    }
+
+    ::selection { background: var(--amber); color: #14120b; }
+    :focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+    button, textarea { font: inherit; }
+    button { border: 0; cursor: pointer; color: inherit; background: transparent; }
+
+    .page {
+      width: min(1080px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 28px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .callsign {
+      margin: 0;
+      font-size: 1.55rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .unit {
+      flex: 1;
+      color: var(--mute);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+    }
+
+    .language-switch {
+      display: flex;
+      border: 1px solid var(--line);
+      background: var(--panel);
+    }
+
+    .language-switch button {
+      padding: 6px 11px;
+      color: var(--mute);
+      letter-spacing: 0.08em;
+    }
+
+    .language-switch button.active,
+    .language-switch button[aria-pressed="true"] {
+      background: var(--amber);
+      color: #14120b;
+      font-weight: 700;
+    }
+
+    .work {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.72fr);
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .console, .sop {
+      background: var(--panel);
+      border: 1px solid rgba(212, 160, 23, 0.28);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    .console { padding: 18px 18px 16px; }
+
+    .console h2 {
+      margin: 0 0 12px;
+      font-size: 0.95rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--amber);
+    }
+
+    .coords {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--mute);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+    }
+
+    textarea {
+      width: 100%;
+      height: 46px;
+      resize: none;
+      padding: 10px 11px;
+      border: 1px solid var(--line);
+      background: #0f100c;
+      color: var(--ink);
+      caret-color: var(--amber);
+      font-family: "Share Tech Mono", Consolas, monospace;
+      font-size: 0.95rem;
+    }
+
+    textarea:focus { border-color: var(--amber); outline: none; }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      margin: 10px 0 14px;
+    }
+
+    .actions button {
+      padding: 6px 9px;
+      border: 1px solid var(--line);
+      color: var(--mute);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+    }
+
+    .actions button:hover { border-color: var(--amber); color: var(--ink); }
+
+    .readout {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 10px;
+    }
+
+    .result-button {
+      width: 100%;
+      min-height: 108px;
+      padding: 14px 16px;
+      border: 1px solid var(--amber);
+      background: #16140c;
+      text-align: left;
+    }
+
+    .result-value {
+      display: block;
+      font-family: "Share Tech Mono", Consolas, monospace;
+      font-size: 2.7rem;
+      line-height: 1;
+      color: var(--amber);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .result-value.empty { font-size: 1.05rem; color: var(--mute); }
+    .copy-hint { display: block; margin-top: 8px; color: var(--mute); letter-spacing: 0.06em; text-transform: uppercase; font-size: 0.75rem; }
+
+    .weapons { display: grid; gap: 8px; }
+
+    .weapon-status {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      background: #0f100c;
+    }
+
+    .weapon-status strong {
+      display: block;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-size: 0.86rem;
+    }
+
+    .weapon-status small { color: var(--mute); font-size: 0.78rem; }
+    .weapon-status.good { border-color: #3f5a32; }
+    .weapon-status.good > b { color: var(--good); }
+    .weapon-status.bad { border-color: #5a3228; }
+    .weapon-status.bad > b { color: var(--bad); }
+    .weapon-status.neutral > b { color: var(--mute); }
+
+    .sop {
+      background: var(--panel);
+      border: 1px solid rgba(212, 160, 23, 0.28);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+      padding: 16px 0 12px;
+    }
+
+    .sop-title {
+      margin: 0 0 8px;
+      padding: 0 16px;
+      font-size: 0.95rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--amber);
+    }
+
+    .sop ol {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: sop;
+    }
+
+    .sop li {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 2px 8px;
+      padding: 8px 16px;
+      border-left: 2px solid transparent;
+    }
+
+    .sop li::before {
+      counter-increment: sop;
+      content: counter(sop, decimal-leading-zero);
+      grid-row: 1 / span 2;
+      color: var(--amber);
+      font-family: "Share Tech Mono", Consolas, monospace;
+      font-size: 0.85rem;
+      padding-top: 2px;
+    }
+
+    .sop h3 {
+      margin: 0;
+      font-size: 0.92rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .sop p {
+      margin: 0;
+      color: var(--mute);
+      font-size: 0.86rem;
+      line-height: 1.3;
+    }
+
+    #algo[data-stage="gun"] li:nth-child(-n+2),
+    #algo[data-stage="target"] li:nth-child(3),
+    #algo[data-stage="fire"] li:nth-child(n+4) {
+      border-left-color: var(--amber);
+      background: rgba(212, 160, 23, 0.06);
+    }
+
+    .flash { animation: copied 280ms ease-out; }
+    @keyframes copied { 45% { background: #3a3214; } }
+
+    @media (max-width: 840px) {
+      .work, .coords, .readout { grid-template-columns: 1fr; }
+      .result-button { min-height: 88px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <h1 class="callsign" data-i18n="title">FDC</h1>
+      <p class="unit" data-i18n="unit">WARDOGS · L81 / SPH-2</p>
+      <div class="language-switch" role="group" aria-label="Язык" data-i18n-aria-label="languageLabel">
+        <button type="button" data-locale="ru" aria-pressed="true">RU</button>
+        <button type="button" data-locale="en" aria-pressed="false">EN</button>
+      </div>
+    </header>
+
+    <div class="work">
+      <section class="console" aria-label="Расчёт дальности" data-i18n-aria-label="calculatorLabel">
+        <h2 data-i18n="consoleTitle">Расчётная станция</h2>
+        <div class="coords">
+          <div>
+            <label for="gun" data-i18n="gunLabel">Орудие</label>
+            <textarea id="gun" rows="1" autocomplete="off" spellcheck="false" placeholder="98.43, 110.38" data-i18n-placeholder="gunPlaceholder"></textarea>
+          </div>
+          <div>
+            <label for="target" data-i18n="targetLabel">Цель</label>
+            <textarea id="target" rows="1" autocomplete="off" spellcheck="false" placeholder="94.53, 109.03" data-i18n-placeholder="targetPlaceholder"></textarea>
+          </div>
+        </div>
+        <div class="actions">
+          <button type="button" id="demo" data-i18n="demo">Пример</button>
+          <button type="button" id="swap" data-i18n="swap">Поменять</button>
+          <button type="button" id="clear-target" data-i18n="clearTarget">Сброс цели</button>
+        </div>
+        <div class="readout">
+          <button class="result-button" type="button" id="copy-result" disabled>
+            <strong class="result-value empty" id="result">Нет данных</strong>
+            <small class="copy-hint" id="copy-hint">вставь две точки с карты</small>
+          </button>
+          <div class="weapons">
+            <div id="mortar-status" class="weapon-status neutral"><span><strong>L81</strong><small>до ~700 м</small></span><b>—</b></div>
+            <div id="artillery-status" class="weapon-status neutral"><span><strong>SPH-2</strong><small>750–2630 м</small></span><b>—</b></div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="sop">
+        <h2 class="sop-title" data-i18n="sopTitle">Порядок работы</h2>
+        <ol id="algo" data-stage="gun">
+        <li>
+          <h3 data-i18n="step1Title">Подготовка карты</h3>
+          <p data-i18n="step1Body">Максимальный зум на позицию орудия, иначе координаты грубые.</p>
+        </li>
+        <li>
+          <h3 data-i18n="step2Title">Засечка орудия</h3>
+          <p data-i18n="step2Body">ПКМ → Mark Coordinates. Чат: Ctrl+A, Ctrl+C. X, затем Y.</p>
+        </li>
+        <li>
+          <h3 data-i18n="step3Title">Засечка цели</h3>
+          <p data-i18n="step3Body">То же по точке удара. Обе пары можно вставить сразу.</p>
+        </li>
+        <li>
+          <h3 data-i18n="step4Title">Установка RNG</h3>
+          <p data-i18n="step4Body">Кликни число слева и выставь ползунок. Между рисками — посередине.</p>
+        </li>
+        <li>
+          <h3 data-i18n="step5Title">Наведение</h3>
+          <p data-i18n="step5Body">Средняя кнопка — белый ромб на цели. Ствол, пока ромб не в центре.</p>
+        </li>
+        <li>
+          <h3 data-i18n="step6Title">Огонь</h3>
+          <p data-i18n="step6Body">L81: R×3, 30 ammo, C — killcam. SPH-2 от 750 м. Коротко в рельеф — сместись и пересчитай.</p>
+        </li>
+        </ol>
+      </aside>
+    </div>
+  </main>
+  <script src="./app.js"></script>
+</body>
+</html>
+
