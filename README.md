@@ -4,32 +4,7 @@
 
 ## Локальный запуск
 
-Откройте `index.html` двойным щелчком или запустите локальный сервер:
-
-```powershell
-python -m http.server 4173
-```
-
-После этого откройте `http://127.0.0.1:4173`.
-
-## Публикация через GitHub Pages
-
-1. Создайте на GitHub новый публичный репозиторий, например `wardogs-range-calculator`.
-2. Загрузите в него `index.html` и `app.mjs`.
-3. Откройте `Settings` → `Pages`.
-4. В разделе `Build and deployment` выберите `Deploy from a branch`.
-5. Выберите ветку `main`, папку `/ (root)` и нажмите `Save`.
-6. Через несколько минут GitHub покажет адрес вида:
-
-   `https://ВАШЕ-ИМЯ.github.io/wardogs-range-calculator/`
-
-Папка `tests` нужна только для проверки разработки. Для работы сайта достаточно `index.html` и `app.mjs`.
-
-## Проверка
-
-```powershell
-node --test tests/app.test.mjs
-```
+Откройте `index.html` двойным щелчком
 
 ## Как дать ссылку в руководстве Steam
 
